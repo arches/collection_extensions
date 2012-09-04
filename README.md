@@ -37,7 +37,7 @@ whenever you use them. For example:
     module OrdersCollectionExtensions
       def for_product_id(product_id)
         # 'self' is the array of orders
-        select {|o| o.line_items.collect(&:product).include? product}
+        select {|o| o.line_items.collect(&:product_id).include? product_id}
       end
     end
     
