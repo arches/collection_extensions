@@ -4,12 +4,11 @@ require File.expand_path('../lib/collection_extensions/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Chris Doyle"]
   gem.email         = ["archslide@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{Lightweight framework for adding methods to groups of ActiveRecord objects}
+  gem.summary       = %q{Light-weight framework for adding methods to groups of ActiveRecord objects}
+  gem.homepage      = "http://github.com/arches/collection_extensions"
 
   gem.files         = `git ls-files`.split($\)
-  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "collection_extensions"
   gem.require_paths = ["lib"]
