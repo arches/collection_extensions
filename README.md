@@ -25,10 +25,10 @@ Include the module in your model and specify what collections you want to extend
 
     class User < ActiveRecord::Base
         include CollectionExtensions
-        
         has_many :orders, :preferences
-        
         extend_collections :orders, :preferences
+        
+        # the original unextended collection is still available, aliased as orig_* (eg, orig_orders or orig_preferences)
     end
 
 This will use the modules OrdersCollectionExtensions and PreferencesCollectionExtensions to extend those associations
