@@ -9,7 +9,7 @@ module CollectionExtensions
   end
 
   module ClassMethods
-    def extend_collections(associations)
+    def extend_collections(*associations)
       Array(associations).each do |association|
         alias_method "orig_#{association}", association
 
