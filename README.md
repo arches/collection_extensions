@@ -1,7 +1,8 @@
 # CollectionExtensions
 
 Sometimes an operation just doesn't fit well into a scope, but you don't want to lose your declarative code style
-by operating on all the objects individually. This gem adds a few lines of code to make it easier to add methods to collections of objects.
+by operating on all the objects individually. This gem adds a few lines of code to make it easier to add methods
+to collections of ActiveRecord objects.
 
 <img src="https://secure.travis-ci.org/arches/collection_extensions.png" />
 
@@ -27,31 +28,32 @@ $ gem install collection_extensions
 
 ## Usage
 
-Include the module in your model and specify what collections you want to extend:
+A collections of records will be extended based on the naming convention `%sCollectionExtensions`, where the `%s` substitution
+is the camel-cased name of the class. For example, collections of User objects will be extended with the methods in the
+`UserCollectionExtensions` model and collections of BlogPost objects will be extended with the methods in the `BlogPostCollectionExtensions`
+module.
 
 ```ruby
-class User < ActiveRecord::Base
-  include CollectionExtensions
-  has_many :orders, :preferences
-  extend_collections :orders, :preferences
-        
-  # the original unextended collection is still available, aliased as orig_* (eg, orig_orders or orig_preferences)
-end
-```
+module BlogPostCollectionExtensions
 
-This will use the modules OrdersCollectionExtensions and PreferencesCollectionExtensions to extend those associations
-whenever you use them. For example:
-
-```ruby
-module OrdersCollectionExtensions
-  def for_product_id(product_id)
-    # 'self' is the array of orders
-    select {|o| o.line_items.collect(&:product_id).include? product_id}
+  # hash key is user ID, hash value is the number of comments they've posted on this set of blog posts
+  def comments_per_user
+    comment_counts = {}
+    
+    # 'self' is the array of blog posts
+    each do |blog_post|
+      blog_post.comments.each do |comment|
+        comment_counts[comment.user_id] ||= 0
+        comment_counts[comment.user_id] += 1
+      end
+    end
+    
+    comment_counts
   end
 end
-
-User.find(1).orders.for_product_id(2)
 ```
+
+### Naming Convention
 
 If you want a different naming convention, set the config variable using `%s` string substitution:
 
