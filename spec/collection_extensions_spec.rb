@@ -1,69 +1,67 @@
+require 'active_record'
 require 'collection_extensions'
 
-module ExamplesCollectionExtensions
-  def operate_on_all_examples
-    "operate_on_all_examples"
+module UserCollectionExtensions
+  def utest
+    "ufoo"
   end
 end
 
-module FoobarsCollectionExtensions
-  def operate_on_all_foobars
-    "operate_on_all_foobars"
-  end
+module ExtensionMethodsForUserCollections
 end
 
-module MethodsForCollectionsOfExamples
-  def operate_on_all_examples
-    "from a module with a different naming convention"
-  end
-end
-
-class CollectionTester
-  include CollectionExtensions
-
-  def examples
-    "original examples method"
-  end
-
-  def foobars
-    "original foobars method"
-  end
-
-  extend_collections :examples, :foobars
-end
-
-describe CollectionExtensions do
-  let(:ct) { CollectionTester.new }
-
-  describe "#extend_collections" do
-    it "aliases the examples" do
-      ct.orig_examples.should == "original examples method"
-      ct.examples.should be_a ExamplesCollectionExtensions
-      ct.examples.operate_on_all_examples.should == "operate_on_all_examples"
+describe "#extension_class" do
+  context "when the extension module exists" do
+    it "returns the constant" do
+      r = ActiveRecord::Relation.new :User, :users
+      r.extension_module.should == UserCollectionExtensions
     end
+  end
 
-    it "aliases the foobars" do
-      ct.orig_foobars.should == "original foobars method"
-      ct.foobars.should be_a FoobarsCollectionExtensions
-      ct.foobars.operate_on_all_foobars.should == "operate_on_all_foobars"
+  context "when the extension module doesn't exist" do
+    it "returns nil" do
+      r = ActiveRecord::Relation.new :Order, :orders
+      r.extension_module.should be_nil
+    end
+  end
+
+  context "when the naming convention has been changed" do
+    before { CollectionExtensions::Config.naming_convention = "ExtensionMethodsForUserCollections" }
+    after { CollectionExtensions::Config.naming_convention = CollectionExtensions::Config::DEFAULT_NAMING_CONVENTION }
+
+    it "uses the proper convention to return the constant" do
+      r = ActiveRecord::Relation.new :User, :users
+      r.extension_module.should == ExtensionMethodsForUserCollections
     end
   end
 end
 
-describe "changing the naming convention" do
-  let(:ct) { CollectionTester.new }
-
-  before do
-    CollectionTester::Config.naming_convention = "MethodsForCollectionsOf%s"
-  end
-
-  it "extends the association with the proper module" do
-    ct.orig_examples.should == "original examples method"
-    ct.examples.should be_a MethodsForCollectionsOfExamples
-    ct.examples.operate_on_all_examples.should == "from a module with a different naming convention"
+describe "calling methods on the array" do
+  it "pulls extension methods from the module" do
+    r = ActiveRecord::Relation.new :User, :users
+    r.stub(orig_to_a: [])
+    r.to_a.utest.should == "ufoo"
   end
 end
 
-describe "" do
+describe "calling methods on the relation" do
+  it "pulls extension methods from the module" do
+    r = ActiveRecord::Relation.new :User, :users
+    r.stub(orig_to_a: [])
+    r.utest.should == "ufoo"
+  end
 
+  it "lets non-extension methods pass through" do
+    r = ActiveRecord::Relation.new :User, :users
+    r.stub(orig_to_a: ['first'])
+    r.first.should == 'first'
+  end
+
+  context "when the extension module doesn't exist" do
+    it "lets methods pass through" do
+      r = ActiveRecord::Relation.new :Order, :orders
+      r.stub(orig_to_a: ['first'])
+      r.first.should == 'first'
+    end
+  end
 end
