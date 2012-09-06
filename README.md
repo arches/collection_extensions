@@ -26,6 +26,14 @@ Or install it yourself as:
 $ gem install collection_extensions
 ```
 
+Depending on where you put your modules, you may need to require the files explicitly. I put my modules in `app/models/collection_extensions`
+and then require them by adding this file:
+
+```ruby
+# in config/initializers/custom_requires.rb
+Dir.glob(Rails.root + 'app/models/collection_extensions/*') {|file| require file}
+```
+
 ## Usage
 
 ### Syntax
