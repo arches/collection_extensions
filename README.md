@@ -112,6 +112,22 @@ end
 Comment.created_by_trusted_user.moderated!  # let a bunch of comments through at once
 ```
 
+#### Aggregations
+
+Sometimes you want to roll up some data, say the average time between registration and first purchase for a particular
+subset of users:
+
+```ruby
+class UserCollectionExtensions
+  def average_time_to_first_purchase
+    times = collect { |u| u.orders.first.created_at - u.created_at }
+    times.inject{ |sum, el| sum + el }.to_f / times.length
+  end
+end
+
+Tag.find("email_blast").users.average_time_to_first_purchase
+```
+
 #### Tell, Don't Ask
 
 Collections of objects often encourage violation of the "Tell, Don't Ask" principle (Thoughtbot has a great [refresher](http://robots.thoughtbot.com/post/27572137956/tell-dont-ask)).
